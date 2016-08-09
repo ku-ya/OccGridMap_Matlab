@@ -1,34 +1,42 @@
 % 1D case for exact inverse sensor model occGrid
 % parameters
-nz = 1;
-nm = 15;
-xt = 0;
+nm = 55;
 
 dx = 1/nm;
 m_cm = dx/2:dx:dx*nm;
 ogmap = 0.5*ones(1,nm);
 % ogmap = sensorFM(0.1, m_cm, 0.7);
 
+% create measurements and pose
+Z_1t = [0.5];
+X_1t = [0.1];
 %%
-for m = 1:nz
-    nr = 15; % index(rtl);
+nz = length(Z_1t);
+for j = 1:nz
+    % get reduced map
+    [idx idx] = min(abs(m_cm - X_1t(j)));
+    [idz idz] = min(abs(m_cm - X_1t(j) - Z_1t(j)));
+    
+    rtl = ogmap(idx:idz);
+    nr = length(rtl); % index(rtl);
+    
     pr_xz = 0;pnr_xz = 1; prnp_xz = 1;
     
-    pz_xr = sensorFM(0,m_cm,0.7);
+    pz_xr = sensorFM(nr,dx,Z_1t(j))/dx;
     for k = 1:nr
         %        pz_xrlk
         
         if k == 1
             a(k) = 0; b(k) = 1;
         else
-            a(k) = a(k-1) + b(k-1)*pz_xr(k)*ogmap(k);
-            b(k) = b(k-1)*(1-ogmap(k));
+            a(k) = a(k-1) + b(k-1)*pz_xr(k)*rtl(k);
+            b(k) = b(k-1)*(1-rtl(k));
         end
     end
     c(nr) = 0;
     for j = 1:nr-1
         k = nr - j;
-        c(k) = ogmap(k + 1)/(1 - ogmap(k))*c(k +1)+b(k)*pz_xr(k + 1)*ogmap(k + 1);
+        c(k) = rtl(k + 1)/(1 - rtl(k))*c(k +1)+b(k)*pz_xr(k + 1)*rtl(k + 1);
     end
     for k = 1:nr
         pr_zxz(k) = a(k) + b(k)*pz_xr(k);
@@ -36,9 +44,13 @@ for m = 1:nz
     end
     
     for k = 1:nr
-        e = ogmap(k)*pr_zxz(k);
-        f = ogmap(k)*pnr_zxz(k);
-        ogmap(k) = e/(e+f);
+        e = rtl(k)*pr_zxz(k);
+        f = rtl(k)*pnr_zxz(k);
+        rtl(k) = e/(e+f);
+    end
+    
+    for k = idx:idz
+        ogmap(k) = rtl(k - idx + 1);
     end
     
 end
