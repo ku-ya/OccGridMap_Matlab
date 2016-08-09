@@ -32,20 +32,21 @@ for j = 1:nz
     
     for k = 1:nr
         if k == 1
-            a(k) = 0; b(k) = 1;
+            a(k) = 0; b(k) = 1;c(1)=pz_xr(1);
         else
             a(k) = a(k-1) + b(k-1)*pz_xr(k-1)*Prtl(k-1);
             b(k) = b(k-1)*(1-Prtl(k-1));
+            c(k) = b(k)*pz_xr(k);
         end
     end
-    c(nr+1) = 0;
-    for p = 1:nr
-        k = nr +1 - p;
-        c(k) = Prtl(k + 1)/(1 - Prtl(k))*c(k+1)+b(k)*pz_xr(k + 1)*Prtl(k + 1);
+    d(nr) = 0;
+    for p = 1:nr-1
+        k = nr - p;
+        d(k) = d(k+1) + b(k)*pz_xr(k + 1)*Prtl(k + 1);
     end
     for k = 1:nr
-        Pr_zxz(k) = a(k) + b(k)*pz_xr(k);
-        Pnr_zxz(k) = a(k) + c(k);
+        Pr_zxz(k) = a(k) + c(k);
+        Pnr_zxz(k) = a(k) + d(k);
     end
     
     for k = 1:nr
