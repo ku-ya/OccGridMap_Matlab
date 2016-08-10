@@ -29,7 +29,7 @@ for j = 1:N % for each time,
     
     xtg = [round(xt(1)*myResol)+1+myorigin(1),round(xt(2)*myResol)+1+myorigin(2)];
     
-    myMap(xtg(1),xtg(2)) = 1;
+    myMap(xtg(1),xtg(2)) = 0;
     %
     %
     %     % Find grids hit by the rays (in the gird map coordinate)
@@ -44,7 +44,7 @@ for j = 1:N % for each time,
 %         map(occ(2),occ(1)) = 3;
 %         % set free cell values
 %          myMap(free) = 1;
-         myMap = EISM(myMap,free,xtg,param);
+         myMap = EISM(myMap,ranges(k,j),[freex,freey],xtg,param);
          
 
     end
