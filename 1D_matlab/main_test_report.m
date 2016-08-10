@@ -1,17 +1,18 @@
 % 1D case for exact inverse sensor model occGrid
 % parameters
-clf;clc;clear all;
-nm = 81;
-L = 1;
-dx = L/nm;
-m_cm = dx/2:dx:dx*nm;
-ogmap = 0.5*ones(1,nm);
-sigma = L*0.01;
-% ogmap = sensorFM(0.1, m_cm, 0.7);
+clear all;
+clf;clc;
+nm = 101; % number of grid nm
+L = 1; % world size
+dx = L/nm; % grid size
+m_cm = dx/2:dx:dx*nm; % grid center of mass
+ogmap = 0.2*ones(1,nm); % map
+sigma = L*0.01; % sensor
 
 % create measurements and pose
-Z_1t = [0.5 0.5 0.5]*L;
-X_1t = [0.1 0.1 0.1]*L;
+Z_1t = [0.5 0.5 0.5 0.5]*L;
+X_1t = [0.1 0.1 0.1 0.1]*L;
+
 %%
 nz = length(Z_1t);
 idx = zeros(1,nz); idz = idx;
@@ -21,14 +22,12 @@ for j = 1:nz
     [~, idz(j)] = min(abs(m_cm - X_1t(j) - Z_1t(j)));
 %     idz(j) = idz(j) + round(sigma*3/dx);
     Prtl = ogmap(idx(j):idz(j));
-    nr = length(Prtl); % index(rtl);
+    nr = length(Prtl);
     
     % Initialize
     Prtl(1) = 0;
-    %     pnr_xz = 1;
     Prtl(nr+1) = 1;
-    pz_xr = sensorFM(nr + 1,dx,Z_1t(j),sigma); % forward sensor model
-    %     pz_xr = pz_xr/sum(pz_xr.*dx);
+    pz_xr = sensorFM(nr + 1,dx,Z_1t(j),sigma); % forward sensor model PDF
     
     for k = 1:nr
         if k == 1
@@ -61,10 +60,12 @@ for j = 1:nz
     subplot(2,1,1)
     imagesc(ogmap);
     colormap(flipud(gray)); axis equal;
+    ylim([-5 5]);
     subplot(2,1,2)
-    plot(m_cm,ogmap,'b-o')
-    hold on
-    plot(m_cm(idx(1):idz(1)),zeros(idz(1)-idx(1)+1),'rx')
+    plot(m_cm(idx(j):idz(j)),zeros(idz(j)-idx(j)+1),'r','linewidth',2); hold on;
+    plot(m_cm,ogmap,'b-o');
+    plot(X_1t(j),0,'>m','MarkerSize',15,'linewidth',2)
+    ylim([0 1]);
     pause();
 end
 

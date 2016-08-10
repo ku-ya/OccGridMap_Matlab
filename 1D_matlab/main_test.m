@@ -5,7 +5,7 @@ nm = 81;
 L = 1;
 dx = L/nm;
 m_cm = dx/2:dx:dx*nm;
-ogmap = 0.5*ones(1,nm);
+ogmap = 0.2*ones(1,nm);
 sigma = L*0.01;
 % ogmap = sensorFM(0.1, m_cm, 0.7);
 
