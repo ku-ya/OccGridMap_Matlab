@@ -1,3 +1,8 @@
 # OccGridMap
 
-Simple 1D example of occupancy grid mapping based on the exact inverse sensor model.
+## Simple 1D example of Occupancy Grid Mapping
+* 1D world
+* Based on the exact inverse sensor model
+* Matlab
+
+
