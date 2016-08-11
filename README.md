@@ -7,7 +7,7 @@
 
 
 ## Simple 2D example of Occupancy Grid Mapping
-* 2D world
+* 2D world (coursera Arial Robotics dataset from Penn)
 * Based on the exact inverse sensor model developped for 1D case
 * Gausian sensor model
 * Matlab
