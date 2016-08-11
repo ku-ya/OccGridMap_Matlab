@@ -21,7 +21,7 @@ for k = 1:100:length(pose)
     lidar_global = [lidar_local(:,1)+xt(1) lidar_local(:,2)+xt(2)];
     
     plot(0,0,'rs'); hold on;
-    plot(lidar_global(:,1),lidar_global(:,2),'or');
+    plot(lidar_global(:,1),lidar_global(:,2),'+r');
     axis equal;
     set(gca,'YDir','reverse');
     xlabel('x');

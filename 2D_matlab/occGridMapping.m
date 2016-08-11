@@ -48,29 +48,31 @@ for j = 1:N % for each time,
         %         map(occ(2),occ(1)) = 3;
         %         % set free cell values
         %          myMap(free) = 1;
+        myMaptemp = ones(length(freex),1);
         for l = 1:length(freex)
             myMaptemp(l) = myMap(freex(l),freey(l));
         end
         myMaptemp = EISM(myMaptemp,ranges(k,j),[freex,freey],xtg,param);
         for l = 1:length(freex)
-            if myMap(freex(l),freey(l))<0.7
+            if myMap(freex(l),freey(l))<0.65
                myMap(freex(l),freey(l))=myMaptemp(l);
+            else
+                break
             end
         end
-        
     end
     %     % Update the map
     %
     %
     %     % Saturate the map?
     %
-    myMap(myMap>0.7) = 1;
+    myMap(myMap>0.65) = 1;
     %
     %     % Visualize the map as needed
     %
-    imagesc(myMap);colormap(flipud(gray));
-    axis equal;
-%     pause()
+%     imagesc(myMap);colormap(flipud(gray));
+%     axis equal;
+%     pause(0.05)
     
     %     plot(lidar_local(:,1)+xt(1),lidar_local(:,2)+xt(2),'-x'); hold on;
     %     pause(0.2)

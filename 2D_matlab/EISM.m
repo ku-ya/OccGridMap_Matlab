@@ -3,7 +3,7 @@
 function ogmap = EISM(ogmap,range,free,X_t,param)
 % L = 1; % world size
 dx = param.resol; % grid size
-sigma = 0.1; % sensor
+sigma = 0.05; % sensor
 % create measurements and pose
 %%
 % nz = length(free);
@@ -55,12 +55,12 @@ end
 for k = 1:nr
     e = Prtl(k)*Pr_zxz(k);
     f = (1-Prtl(k))*Pnr_zxz(k);
-    ogmap(free(k,1),free(k,2)) = e/(e+f);
+    ogmap(k) = e/(e+f);
 end
 
 
 for k = 1:size(free,1)
-    x(k) = ogmap(free(k,1),free(k,2));
+    x(k) = ogmap(k);
 end
 
 
