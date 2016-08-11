@@ -13,7 +13,7 @@ sigma = 0.05; % sensor
 %     [~, idx(j)] = min(abs(m_cm - X_t(j)));
 %     [~, idz(j)] = min(abs(m_cm - X_t(j) - Z_t(j)));
 
-if size(free,1)<25
+if size(free,1)<20
     return;
 end
 

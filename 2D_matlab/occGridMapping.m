@@ -83,13 +83,13 @@ for j = 1:N % for each time,
     % AlphaData for the solid green image.
     I = zeros(size(myMap));
     for k = 1:length(lidar_local)
-        I(ceil((lidar_local(k,1)+xt(1))*param.resol)+700,...
-            ceil((lidar_local(k,2)+xt(2))*param.resol)+600)=1;
+        I(ceil((lidar_local(k,1)+xt(1))*param.resol)+param.origin(1),...
+            ceil((lidar_local(k,2)+xt(2))*param.resol)+param.origin(2))=1;
     end
     set(h, 'AlphaData', I)
     axis equal;hold on;
     plot(xt(2)*param.resol+param.origin(2),xt(1)*param.resol+param.origin(1),'ro','linewidth',2,'MarkerSize',8);
-    pause(0.1)
+    pause(0.05)
     
     
     %     plot(lidar_local(:,1)+xt(1),lidar_local(:,2)+xt(2),'-x'); hold on;

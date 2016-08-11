@@ -40,7 +40,7 @@ param.lo_min = -100;
 % Running time could take long depending on the efficiency of your code.
 % For a quicker test, you may take some hundreds frames as input arguments as
 % shown.
-numFrame = 1:60:length(pose);
+numFrame = 1:100:length(pose);
 myMap = occGridMapping(ranges(:,numFrame), scanAngles,...
     pose(:,numFrame), param);
 
