@@ -1,10 +1,9 @@
 % 1 beam case for exact inverse sensor model occGrid
 % parameters
 function ogmap = EISM(ogmap,range,free,X_t,param)
-
 % L = 1; % world size
 dx = param.resol; % grid size
-sigma = 0.05; % sensor
+sigma = 0.1; % sensor
 % create measurements and pose
 %%
 % nz = length(free);
@@ -13,9 +12,15 @@ sigma = 0.05; % sensor
 % get reduced map
 %     [~, idx(j)] = min(abs(m_cm - X_t(j)));
 %     [~, idz(j)] = min(abs(m_cm - X_t(j) - Z_t(j)));
-Prtl = zeros(length(free)+1,1);
-for k = 1:length(free)-1
-    Prtl(k) = ogmap(free(k,1),free(k,2));
+
+if size(free,1)<25
+    return;
+end
+
+
+Prtl = zeros(length(free),1);
+for k = 1:length(free)
+    Prtl(k) = ogmap(k);
 end
 nr = length(Prtl);
 % Initialize
@@ -23,12 +28,14 @@ Prtl(1) = 0;
 Prtl(nr+1) = 1;
 % get distance to each gird in rtl
 distance = sqrt((free(:,1)-X_t(1)).^2+(free(:,2)-X_t(2)).^2);
-pz_xr = sensorFM(nr + 1,param.resol,(nr + 1)/dx,sigma); % forward sensor model PDF
+pz_xr = sensorFM(nr,param.resol,range,sigma); % forward sensor model PDF
 % clf
 % plot((1:nr+1)/dx,pz_xr)
+
+a = zeros(1,nr); b = a; c = a; d = a;
 for k = 1:nr
     if k == 1
-        a(k) = 0; b(k) = 1;c(1)=pz_xr(1);
+        a(1) = 0; b(1) = 1;c(1)=pz_xr(1);
     else
         a(k) = a(k-1) + b(k-1)*pz_xr(k-1)*Prtl(k-1);
         b(k) = b(k-1)*(1-Prtl(k-1));
@@ -48,12 +55,18 @@ end
 for k = 1:nr
     e = Prtl(k)*Pr_zxz(k);
     f = (1-Prtl(k))*Pnr_zxz(k);
-    Prtl(k) = e/(e+f);
+    ogmap(free(k,1),free(k,2)) = e/(e+f);
 end
 
-for k = 1:length(free)-1
-    ogmap(free(k,1),free(k,2)) = Prtl(k);
+
+for k = 1:size(free,1)
+    x(k) = ogmap(free(k,1),free(k,2));
 end
+
+
+% clf
+% plot(x)
+% pause(0.5)
 % end
 
 

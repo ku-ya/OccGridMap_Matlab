@@ -25,39 +25,55 @@ myorigin = param.origin;
 N = size(pose,2);
 for j = 1:N % for each time,
     xt = pose(:,j);
-    lidar_local = [ranges(:,j).*cos(scanAngles - xt(3)) -ranges(:,j).*sin(scanAngles - xt(3))];
+    lidar_local = [ranges(:,j).*cos(scanAngles + xt(3)) -ranges(:,j).*...
+        sin(scanAngles + xt(3))];
     
-    xtg = [round(xt(1)*myResol)+1+myorigin(1),round(xt(2)*myResol)+1+myorigin(2)];
+    xtg = [ceil(xt(1)*myResol)+myorigin(1),ceil(xt(2)*myResol)+...
+        myorigin(2)];
     
     myMap(xtg(1),xtg(2)) = 0;
     %
     %
     %     % Find grids hit by the rays (in the gird map coordinate)
     for k = 1:length(scanAngles)-1
-        rtl = lidar_local(k,:)*param.resol;
-        [freex, freey] = bresenham(xtg(1),xtg(2),xtg(1)+rtl(1),xtg(2)+rtl(2));
-%         
-%         % Find occupied-measurement cells and free-measurement cells
-%         % convert to 1d index
-         free = sub2ind(size(myMap),freey,freex);
-%         % set end point value
-%         map(occ(2),occ(1)) = 3;
-%         % set free cell values
-%          myMap(free) = 1;
-         myMap = EISM(myMap,ranges(k,j),[freex,freey],xtg,param);
-         
-
+        rtl = ceil(lidar_local(k,:)*param.resol);
+        
+        [freex, freey] = bresenham(xtg(1),xtg(2),xtg(1)+rtl(1),...
+            xtg(2)+rtl(2));
+        %
+        %         % Find occupied-measurement cells and free-measurement cells
+        %         % convert to 1d index
+        %          free = sub2ind(size(myMap),freey,freex);
+        %         % set end point value
+        %         map(occ(2),occ(1)) = 3;
+        %         % set free cell values
+        %          myMap(free) = 1;
+        for l = 1:length(freex)
+            myMaptemp(l) = myMap(freex(l),freey(l));
+        end
+        myMaptemp = EISM(myMaptemp,ranges(k,j),[freex,freey],xtg,param);
+        for l = 1:length(freex)
+            if myMap(freex(l),freey(l))<0.7
+               myMap(freex(l),freey(l))=myMaptemp(l);
+            end
+        end
+        
     end
     %     % Update the map
     %
     %
     %     % Saturate the map?
     %
+    myMap(myMap>0.7) = 1;
     %
     %     % Visualize the map as needed
     %
-%     plot(lidar_local(:,1)+xt(1),lidar_local(:,2)+xt(2),'-x'); hold on;
-%     pause(0.2)
+    imagesc(myMap);colormap(flipud(gray));
+    axis equal;
+%     pause()
+    
+    %     plot(lidar_local(:,1)+xt(1),lidar_local(:,2)+xt(2),'-x'); hold on;
+    %     pause(0.2)
     %
 end
 

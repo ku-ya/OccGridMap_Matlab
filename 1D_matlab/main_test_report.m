@@ -7,11 +7,11 @@ L = 1; % world size
 dx = L/nm; % grid size
 m_cm = dx/2:dx:dx*nm; % grid center of mass
 ogmap = 0.2*ones(1,nm); % map
-sigma = L*0.01; % sensor
+sigma = L*0.05; % sensor
 
 % create measurements and pose
-Z_1t = [0.5 0.5 0.5 0.5]*L;
-X_1t = [0.1 0.1 0.1 0.1]*L;
+Z_1t = ones(10,1)*L*0.5;
+X_1t = ones(10,1)*L*0.1;
 
 %%
 nz = length(Z_1t);
@@ -63,10 +63,10 @@ for j = 1:nz
     ylim([-5 5]);
     subplot(2,1,2)
     plot(m_cm(idx(j):idz(j)),zeros(idz(j)-idx(j)+1),'r','linewidth',2); hold on;
-    plot(m_cm,ogmap,'b-o');
+    plot(m_cm,ogmap,'b-');
     plot(X_1t(j),0,'>m','MarkerSize',15,'linewidth',2)
     ylim([0 1]);
-    pause();
+     pause(0.1);
 end
 
 
