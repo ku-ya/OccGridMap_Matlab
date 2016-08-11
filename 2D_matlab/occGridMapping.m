@@ -55,7 +55,7 @@ for j = 1:N % for each time,
         myMaptemp = EISM(myMaptemp,ranges(k,j),[freex,freey],xtg,param);
         for l = 1:length(freex)
             if myMap(freex(l),freey(l))<0.65
-               myMap(freex(l),freey(l))=myMaptemp(l);
+                myMap(freex(l),freey(l))=myMaptemp(l);
             else
                 break
             end
@@ -70,9 +70,27 @@ for j = 1:N % for each time,
     %
     %     % Visualize the map as needed
     %
-%     imagesc(myMap);colormap(flipud(gray));
-%     axis equal;
-%     pause(0.05)
+    imagesc(myMap);colormap(flipud(gray));hold on
+    
+    
+    % Make a truecolor all-green image.
+    green = cat(3, zeros(size(myMap)),...
+        ones(size(myMap)), zeros(size(myMap)));
+    hold on;
+    h = imshow(green);
+    hold off;
+    % Use our influence map as the
+    % AlphaData for the solid green image.
+    I = zeros(size(myMap));
+    for k = 1:length(lidar_local)
+        I(ceil((lidar_local(k,1)+xt(1))*param.resol)+700,...
+            ceil((lidar_local(k,2)+xt(2))*param.resol)+600)=1;
+    end
+    set(h, 'AlphaData', I)
+    axis equal;hold on;
+    plot(xt(2)*param.resol+param.origin(2),xt(1)*param.resol+param.origin(1),'ro','linewidth',2,'MarkerSize',8);
+    pause(0.1)
+    
     
     %     plot(lidar_local(:,1)+xt(1),lidar_local(:,2)+xt(2),'-x'); hold on;
     %     pause(0.2)
