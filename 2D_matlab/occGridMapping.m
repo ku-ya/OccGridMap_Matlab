@@ -52,7 +52,12 @@ for j = 1:N % for each time,
         for l = 1:length(freex)
             myMaptemp(l) = myMap(freex(l),freey(l));
         end
-        myMaptemp = EISM(myMaptemp,ranges(k,j),[freex,freey],xtg,param);
+        
+        if param.ISM == 'EISM'
+            myMaptemp = EISM(myMaptemp,ranges(k,j),[freex,freey],xtg,param);
+        elseif param.ISM == 'AISM'
+            myMapteamp = AISM(myMaptemp,ranges(k,j),[freex,freey],xtg,param)
+        end
         for l = 1:length(freex)
             if myMap(freex(l),freey(l))<0.65
                 myMap(freex(l),freey(l))=myMaptemp(l);

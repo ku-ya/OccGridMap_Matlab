@@ -6,7 +6,7 @@
 % Please see example_lidar first to understand the lidar measurements, 
 % and see example_bresenham to understand how to use it.
 clear all;
-% close all;
+close all;
 
 load practice.mat 
 % This will load four variables: ranges, scanAngles, t, pose
@@ -35,12 +35,13 @@ param.lo_free = 0.5;
 param.lo_max = 100;
 param.lo_min = -100;
 
+param.ISM = 'EISM';
 
 % Call your mapping function here.
 % Running time could take long depending on the efficiency of your code.
 % For a quicker test, you may take some hundreds frames as input arguments as
 % shown.
-numFrame = 1:100:length(pose);
+numFrame = 1:10:length(pose);
 myMap = occGridMapping(ranges(:,numFrame), scanAngles,...
     pose(:,numFrame), param);
 
