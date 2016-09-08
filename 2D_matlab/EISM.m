@@ -2,8 +2,8 @@
 % parameters
 function ogmap = EISM(ogmap,range,free,X_t,param)
 % L = 1; % world size
-dx = param.resol; % grid size
-sigma = 0.05; % sensor
+% dx = param.resol; % grid size
+% sigma = param.sigma; % sensor
 % create measurements and pose
 %%
 % nz = length(free);
@@ -28,11 +28,12 @@ Prtl(1) = 0;
 Prtl(nr+1) = 1;
 % get distance to each gird in rtl
 distance = sqrt((free(:,1)-X_t(1)).^2+(free(:,2)-X_t(2)).^2);
-pz_xr = sensorFM(nr,param.resol,range,sigma); % forward sensor model PDF
+pz_xr = sensorFM(nr,param.resol,range,param); % forward sensor model PDF
 % clf
 % plot((1:nr+1)/dx,pz_xr)
 
 a = zeros(1,nr); b = a; c = a; d = a;
+Pr_zxz = a; Pnr_zxz = a;
 for k = 1:nr
     if k == 1
         a(1) = 0; b(1) = 1;c(1)=pz_xr(1);
@@ -55,7 +56,11 @@ end
 for k = 1:nr
     e = Prtl(k)*Pr_zxz(k);
     f = (1-Prtl(k))*Pnr_zxz(k);
-    ogmap(k) = e/(e+f);
+    if ~isnan(e/(e+f))
+        ogmap(k) = e/(e+f);
+    else
+        ogmap(k) = e/(e+f+eps);
+    end
 end
 
 

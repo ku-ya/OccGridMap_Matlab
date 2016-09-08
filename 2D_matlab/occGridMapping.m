@@ -2,7 +2,7 @@
 % WEEK 3
 %
 % Complete this function following the instruction.
-function myMap = occGridMapping(ranges, scanAngles, pose, param)
+function [myMap, H, IG]= occGridMapping(ranges, scanAngles, pose, param)
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
@@ -25,6 +25,11 @@ myorigin = param.origin;
 N = size(pose,2);
 for j = 1:N % for each time,
     xt = pose(:,j);
+    
+    lidar_local_plt = [ranges(:,j).*cos(scanAngles + xt(3)) -ranges(:,j).*...
+        sin(scanAngles + xt(3))];
+    
+    ranges(:,j) = ranges(:,j) + param.rangelim;
     lidar_local = [ranges(:,j).*cos(scanAngles + xt(3)) -ranges(:,j).*...
         sin(scanAngles + xt(3))];
     
@@ -56,10 +61,10 @@ for j = 1:N % for each time,
         if param.ISM == 'EISM'
             myMaptemp = EISM(myMaptemp,ranges(k,j),[freex,freey],xtg,param);
         elseif param.ISM == 'AISM'
-            myMapteamp = AISM(myMaptemp,ranges(k,j),[freex,freey],xtg,param)
+            myMaptemp = AISM(myMaptemp,ranges(k,j),[freex,freey],xtg,param);
         end
         for l = 1:length(freex)
-            if myMap(freex(l),freey(l))<0.65
+            if myMap(freex(l),freey(l))< param.lo_occ
                 myMap(freex(l),freey(l))=myMaptemp(l);
             else
                 break
@@ -71,32 +76,44 @@ for j = 1:N % for each time,
     %
     %     % Saturate the map?
     %
-    myMap(myMap>0.65) = 1;
+    myMap(myMap>=param.lo_occ) = 1;
     %
     %     % Visualize the map as needed
-    %
-    imagesc(myMap);colormap(flipud(gray));hold on
-    
-    
-    % Make a truecolor all-green image.
-    green = cat(3, zeros(size(myMap)),...
-        ones(size(myMap)), zeros(size(myMap)));
-    hold on;
-    h = imshow(green);
-    hold off;
-    % Use our influence map as the
-    % AlphaData for the solid green image.
-    I = zeros(size(myMap));
-    for k = 1:length(lidar_local)
-        I(ceil((lidar_local(k,1)+xt(1))*param.resol)+param.origin(1),...
-            ceil((lidar_local(k,2)+xt(2))*param.resol)+param.origin(2))=1;
+    if param.fig == 1
+        caxis([0.2 0.8])
+        imagesc(1-myMap);colormap('gray');hold on
+        % Make a truecolor all-green image.
+        green = cat(3, zeros(size(myMap)),...
+            ones(size(myMap)), zeros(size(myMap)));
+        hold on;
+        h = imshow(green);
+        hold off;
+        % Use our influence map as the
+        % AlphaData for the solid green image.
+        I = zeros(size(myMap));
+        for k = 1:length(lidar_local_plt)
+            I(ceil((lidar_local_plt(k,1)+xt(1))*param.resol)+param.origin(1),...
+                ceil((lidar_local_plt(k,2)+xt(2))*param.resol)+param.origin(2))=1;
+        end
+        set(h, 'AlphaData', I)
+        axis equal;hold on;
+        plot(xt(2)*param.resol+param.origin(2),xt(1)*param.resol+param.origin(1),'ro','linewidth',2,'MarkerSize',8);
+        axis tight;
+        
+        pause(0.05)
+        
     end
-    set(h, 'AlphaData', I)
-    axis equal;hold on;
-    plot(xt(2)*param.resol+param.origin(2),xt(1)*param.resol+param.origin(1),'ro','linewidth',2,'MarkerSize',8);
-    pause(0.05)
     
+    H(j) = mapEntropy(myMap);
     
+    if j==1
+        IG(1) = 0;
+    else
+        IG(j) = H(j-1) - H(j);
+    end
+%     if param.ISM == 'EISM'
+%         x = 1
+%     end
     %     plot(lidar_local(:,1)+xt(1),lidar_local(:,2)+xt(2),'-x'); hold on;
     %     pause(0.2)
     %
