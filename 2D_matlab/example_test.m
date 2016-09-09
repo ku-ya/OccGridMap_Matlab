@@ -20,11 +20,14 @@ load practice.mat
 % [4] pose is 3-by-K array containing the pose of the mobile robot over time. 
 %     e.g. pose(:,k) is the [x(meter),y(meter),theta(in radian)] at time index k.
 param.fig = 1;
+param.pause = 0;
+param.skip = 120;
+param.hz = 10;
 % 1. Decide map resolution, i.e., the number of grids for 1 meter.
 param.resol = 16;
 
 % 2. Decide the initial map size in pixels
-param.size = [ceil(900/25*param.resol), ceil(900/25*param.resol)];
+param.size = [ceil(900/25*param.resol), ceil(700/25*param.resol)];
 
 % 3. Indicate where you will put the origin in pixels
 param.origin = [ceil(700/25*param.resol),ceil(600/25*param.resol)]'; 
@@ -35,19 +38,21 @@ param.lo_free = 0.1;
 param.lo_max = 100;
 param.lo_min = -100;
 
+param.ray_skip = 1;
 param.ISM = 'AISM';
 param.sigma = 0.03;
 param.rho = 0.6;
 param.rangelim = 0.1;
-
+param.final_frame = -3;
 % Call your mapping function here.
 % Running time could take long depending on the efficiency of your code.
 % For a quicker test, you may take some hundreds frames as input arguments as
 % shown.
-numFrame = 1:120:length(pose);
+numFrame = 1:param.skip:length(pose);
 if param.fig == 1
-    figure('units','normalized','outerposition',[0 0 1 1]);
-    a = subplot(1,2,1);
+%     figure('units','normalized','outerposition',[0 0 1 1]);
+%     a = subplot(1,2,1);
+    figure;
 end
 % subaxis(5,5,i, 'Spacing', 0.03, 'Padding', 0, 'Margin', 0);
 [myMap1, H1, IG1]= occGridMapping(ranges(:,numFrame), scanAngles,...
@@ -56,7 +61,8 @@ end
 
 param.ISM = 'EISM';
 if param.fig ==1
-    b = subplot(1,2,2);
+%     b = subplot(1,2,2);
+figure;
 end
 [myMap2, H2, IG2]= occGridMapping(ranges(:,numFrame), scanAngles,...
     pose(:,numFrame), param);
@@ -91,16 +97,22 @@ print('map_zoom','-dpng');
 % imagesc(myMap1); 
 % colormap(flipud(gray)); axis equal;
 figure;
-
-plot(H1,'b+-');hold on;
-plot(H2,'r+-');grid on;
+time = [1:length(H1)]*param.skip/param.hz;
+plot(time,H1,'b+-');hold on;
+plot(time,H2,'r+-');grid on;
 legend('AISM','EISM');title('Entropy comparison');
-print('entropy','-dpng');
+xlabel('Time [s]');ylabel('Entropy[-]');
+
+
+
+print('entropy_time','-dpng');
 % information gain
 figure;
 plot(IG1,'b+-');hold on;
 plot(IG2,'r+-');grid on;
 legend('AISM','EISM');
+xlabel('Time [s]');ylabel('Entropy[-]');
+
 print('infogain','-dpng');
 
 % colormap('gray'); axis equal;

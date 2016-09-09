@@ -23,7 +23,7 @@ myorigin = param.origin;
 
 
 N = size(pose,2);
-for j = 1:N % for each time,
+for j = 1:N+param.final_frame % for each time,
     xt = pose(:,j);
     
     lidar_local_plt = [ranges(:,j).*cos(scanAngles + xt(3)) -ranges(:,j).*...
@@ -40,7 +40,7 @@ for j = 1:N % for each time,
     %
     %
     %     % Find grids hit by the rays (in the gird map coordinate)
-    for k = 1:length(scanAngles)-1
+    for k = 1:param.ray_skip:length(scanAngles)-1
         rtl = ceil(lidar_local(k,:)*param.resol);
         
         [freex, freey] = bresenham(xtg(1),xtg(2),xtg(1)+rtl(1),...
@@ -99,9 +99,24 @@ for j = 1:N % for each time,
         axis equal;hold on;
         plot(xt(2)*param.resol+param.origin(2),xt(1)*param.resol+param.origin(1),'ro','linewidth',2,'MarkerSize',8);
         axis tight;
+        set(gcf, 'PaperPosition', [-1.25 -0.5 6 5.5]); %Position the plot further to the left and down. Extend the plot to fill entire paper.
+        set(gcf, 'PaperSize', [3.7 4.7]); %Keep the same paper size
+        saveas(gcf, [param.ISM,'/',param.ISM,'_', sprintf('Image_%d',j)], 'pdf')
+%         print([param.ISM, '/' ,sprintf('Image_%d',j)],'-dpng');
         
-        pause(0.05)
+        clf;
+        mapGridEntropy = -(myMap.*log(myMap) + (1 - myMap).*log(1-myMap));
         
+        clims = [0.0 0.8];
+        imagesc(mapGridEntropy,clims);colormap('jet');%hold on;
+%         caxis([min(min(mapGridEntropy)) 1])
+        axis equal;axis tight;axis off;
+        set(gcf, 'PaperPosition', [-1.25 -0.5 6 5.5]);
+        set(gcf, 'PaperSize', [3.7 4.7]); %Keep the same paper size
+        saveas(gcf, [param.ISM,'/',param.ISM,'_',sprintf('Image_inf_%d',j)], 'pdf')
+%         print([param.ISM, '/' ,sprintf('Image_inf_%d',j)],'-dpng');
+        pause(param.pause)
+        clf;
     end
     
     H(j) = mapEntropy(myMap);
